@@ -337,15 +337,12 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
             return
         end
 
-        table.insert(
-            ipLookupFeatList, menu.add_player_feature(
-                label .. stringValue, "action", parentFeat.id, function(feat, pid)
-                    feat.hint = "hge"
-                    menu.notify('Copied "' .. stringValue .. '" to clipboard.', SCRIPT_TITLE, 6, COLOR.GREEN)
-                    utils.to_clipboard(stringValue)
-                end
-            ).id
-        )
+        local feat = menu.add_player_feature(label .. stringValue, "action", parentFeat.id, function(feat, pid)
+            menu.notify('Copied "' .. stringValue .. '" to clipboard.', SCRIPT_TITLE, 6, COLOR.GREEN)
+            utils.to_clipboard(stringValue)
+        end)
+        feat.hint = "Copy to clipboard."
+        table.insert(ipLookupFeatList, feat.id)
     end
 
 
