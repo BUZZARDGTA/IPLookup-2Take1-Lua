@@ -324,7 +324,13 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     end
 
 
-    local function add_player_ip_lookup_feature(parentFeat, label, stringValue)
+    local function add_player_ip_lookup_feature(parentFeat, label, feat)
+        if not feat.on then
+            return
+        end
+
+        local stringValue = feat.data
+
         if stringValue == nil or stringValue == "" or stringValue:lower() == "nil" then
             stringValue = "N/A"
         elseif stringValue:lower() == "no" or stringValue:lower() == "false" then
@@ -346,67 +352,25 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     end
 
 
-    if lookupFlagFeat_ip.on then
-        add_player_ip_lookup_feature(feat, "IP: ", lookupFlagFeat_ip.data)
-    end
-    if lookupFlagFeat_continent.on then
-        add_player_ip_lookup_feature(feat, "Continent: ", lookupFlagFeat_continent.data)
-    end
-    if lookupFlagFeat_country.on then
-        add_player_ip_lookup_feature(feat, "Country: ", lookupFlagFeat_country.data)
-    end
-    if lookupFlagFeat_region.on then
-        add_player_ip_lookup_feature(feat, "Region: ", lookupFlagFeat_region.data)
-    end
-    if lookupFlagFeat_city.on then
-        add_player_ip_lookup_feature(feat, "City: ", lookupFlagFeat_city.data)
-    end
-    if lookupFlagFeat_district.on then
-        add_player_ip_lookup_feature(feat, "District: ", lookupFlagFeat_district.data)
-    end
-    if lookupFlagFeat_zip.on then
-        add_player_ip_lookup_feature(feat, "Zip: ", lookupFlagFeat_zip.data)
-    end
-    if lookupFlagFeat_lat.on then
-        add_player_ip_lookup_feature(feat, "Lat: ", lookupFlagFeat_lat.data)
-    end
-    if lookupFlagFeat_lon.on then
-        add_player_ip_lookup_feature(feat, "Lon: ", lookupFlagFeat_lon.data)
-    end
-    if lookupFlagFeat_timezone.on then
-        add_player_ip_lookup_feature(feat, "Timezone: ", lookupFlagFeat_timezone.data)
-    end
-    if lookupFlagFeat_offset.on then
-        add_player_ip_lookup_feature(feat, "Offset: ", lookupFlagFeat_offset.data)
-    end
-    if lookupFlagFeat_currency.on then
-        add_player_ip_lookup_feature(feat, "Currency: ", lookupFlagFeat_currency.data)
-    end
-    if lookupFlagFeat_isp.on then
-        add_player_ip_lookup_feature(feat, "ISP: ", lookupFlagFeat_isp.data)
-    end
-    if lookupFlagFeat_org.on then
-        add_player_ip_lookup_feature(feat, "ORG: ", lookupFlagFeat_org.data)
-    end
-    if lookupFlagFeat_as.on then
-        add_player_ip_lookup_feature(feat, "AS: ", lookupFlagFeat_as.data)
-    end
-    if lookupFlagFeat_asname.on then
-        add_player_ip_lookup_feature(feat, "AS Name: ", lookupFlagFeat_asname.data)
-    end
-    if lookupFlagFeat_type.on then
-        add_player_ip_lookup_feature(feat, "Type: ", lookupFlagFeat_type.data)
-    end
-    if lookupFlagFeat_mobile.on then
-        add_player_ip_lookup_feature(feat, "Is Mobile: ", lookupFlagFeat_mobile.data)
-    end
-    if lookupFlagFeat_proxy1.on then
-        add_player_ip_lookup_feature(feat, "Is Proxy (#1): ", lookupFlagFeat_proxy1.data)
-    end
-    if lookupFlagFeat_proxy2.on then
-        add_player_ip_lookup_feature(feat, "Is Proxy (#2): ", lookupFlagFeat_proxy2.data)
-    end
-    if lookupFlagFeat_hosting.on then
-        add_player_ip_lookup_feature(feat, "Is Hosting: ", lookupFlagFeat_hosting.data)
-    end
+    add_player_ip_lookup_feature(feat, "IP: ", lookupFlagFeat_ip)
+    add_player_ip_lookup_feature(feat, "Continent: ", lookupFlagFeat_continent)
+    add_player_ip_lookup_feature(feat, "Country: ", lookupFlagFeat_country)
+    add_player_ip_lookup_feature(feat, "Region: ", lookupFlagFeat_region)
+    add_player_ip_lookup_feature(feat, "City: ", lookupFlagFeat_city)
+    add_player_ip_lookup_feature(feat, "District: ", lookupFlagFeat_district)
+    add_player_ip_lookup_feature(feat, "Zip: ", lookupFlagFeat_zip)
+    add_player_ip_lookup_feature(feat, "Lat: ", lookupFlagFeat_lat)
+    add_player_ip_lookup_feature(feat, "Lon: ", lookupFlagFeat_lon)
+    add_player_ip_lookup_feature(feat, "Timezone: ", lookupFlagFeat_timezone)
+    add_player_ip_lookup_feature(feat, "Offset: ", lookupFlagFeat_offset)
+    add_player_ip_lookup_feature(feat, "Currency: ", lookupFlagFeat_currency)
+    add_player_ip_lookup_feature(feat, "ISP: ", lookupFlagFeat_isp)
+    add_player_ip_lookup_feature(feat, "ORG: ", lookupFlagFeat_org)
+    add_player_ip_lookup_feature(feat, "AS: ", lookupFlagFeat_as)
+    add_player_ip_lookup_feature(feat, "AS Name: ", lookupFlagFeat_asname)
+    add_player_ip_lookup_feature(feat, "Type: ", lookupFlagFeat_type)
+    add_player_ip_lookup_feature(feat, "Is Mobile: ", lookupFlagFeat_mobile)
+    add_player_ip_lookup_feature(feat, "Is Proxy (#1): ", lookupFlagFeat_proxy1)
+    add_player_ip_lookup_feature(feat, "Is Proxy (#2): ", lookupFlagFeat_proxy2)
+    add_player_ip_lookup_feature(feat, "Is Hosting: ", lookupFlagFeat_hosting)
 end)
