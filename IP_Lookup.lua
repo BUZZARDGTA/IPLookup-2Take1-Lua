@@ -170,6 +170,50 @@ if #missingPermissions > 0 then
 end
 
 
+local ipLookupFlagsTable = {
+    { name = "IP", apiProvider = nil, onMenu = true, onChat = true, lookupFeat = nil, chatFeat = nil, jsonKeys = nil },
+    { name = "Continent", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "continent", "continentCode" } },
+    { name = "Country", apiProvider = "IPAPI", onMenu = true, onChat = true, lookupFeat = nil, chatFeat = nil, jsonKeys = { "country", "countryCode" } },
+    { name = "Region", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "regionName", "region" } },
+    { name = "City", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "city" } },
+    { name = "District", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "district" } },
+    { name = "Zip", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "zip" } },
+    { name = "Lat", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "lat" } },
+    { name = "Long", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "lon" } },
+    { name = "Timezone", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "timezone" } },
+    { name = "Offset", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "offset" } },
+    { name = "Currency", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "currency" } },
+    { name = "ISP", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "isp" } },
+    { name = "ORG", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "org" } },
+    { name = "AS", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "as" } },
+    { name = "AS Name", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "asname" } },
+    { name = "Type", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "type" } },
+    { name = "Is Mobile", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "mobile" } },
+    { name = "Is Proxy (#1)", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "hosting" } },
+    { name = "Is Proxy (#2)", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } },
+    { name = "Is Hosting", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } }
+}
+
+
+local function init_toggle_flags(flagsTypeString, featName, parent)
+    local function create_toggle_feature(name, defaultValue)
+        local feat = menu.add_feature(name, "toggle", parent.id)
+        feat.on = defaultValue
+        return feat
+    end
+
+    for i = 1, #ipLookupFlagsTable do
+        local lookupFlag = ipLookupFlagsTable[i]
+
+        if flagsTypeString == "IP Lookup Flags" then
+            lookupFlag[featName] = create_toggle_feature(lookupFlag.name, lookupFlag.onMenu)
+        elseif flagsTypeString == "Chat Messages Flags" then
+            lookupFlag[featName] = create_toggle_feature(lookupFlag.name, lookupFlag.onChat)
+        end
+    end
+end
+
+
 -- === Main Menu Features === --
 local myRootMenu = menu.add_feature(SCRIPT_TITLE, "parent", 0)
 
@@ -186,98 +230,17 @@ settingsMenu.hint = "Options for the script."
 local lookupFlags = menu.add_feature("IP Lookup Flags", "parent", settingsMenu.id)
 lookupFlags.hint = "Choose the flags to display in the IP Lookup."
 
+init_toggle_flags("IP Lookup Flags", "lookupFeat", lookupFlags)
+
 local chatLookupFlags = menu.add_feature("Chat Messages Flags", "parent", settingsMenu.id)
 lookupFlags.hint = "Choose the flags to display in the IP Lookup Chat Messages."
 
-local chatIpLookupFeat_ip = menu.add_feature("IP", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ip.on = true
-local chatIpLookupFeat_ipcontinent = menu.add_feature("Continent", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipcontinent.on = false
-local chatIpLookupFeat_ipcountry = menu.add_feature("Country", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipcountry.on = true
-local chatIpLookupFeat_ipregion = menu.add_feature("Region", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipregion.on = false
-local chatIpLookupFeat_ipcity = menu.add_feature("City", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipcity.on = false
-local chatIpLookupFeat_ipdistrict = menu.add_feature("District", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipdistrict.on = false
-local chatIpLookupFeat_ipzip = menu.add_feature("Zip", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipzip.on = false
-local chatIpLookupFeat_iplat = menu.add_feature("Lat", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_iplat.on = false
-local chatIpLookupFeat_iplon = menu.add_feature("Long", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_iplon.on = false
-local chatIpLookupFeat_iptimezone = menu.add_feature("Timezone", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_iptimezone.on = false
-local chatIpLookupFeat_ipoffset = menu.add_feature("Offset", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipoffset.on = false
-local chatIpLookupFeat_ipcurrency = menu.add_feature("Currency", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipcurrency.on = false
-local chatIpLookupFeat_ipisp = menu.add_feature("ISP", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipisp.on = true
-local chatIpLookupFeat_iporg = menu.add_feature("ORG", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_iporg.on = false
-local chatIpLookupFeat_ipas = menu.add_feature("AS","toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipas.on = false
-local chatIpLookupFeat_ipasname = menu.add_feature("AS Name","toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipasname.on = false
-local chatIpLookupFeat_iptype = menu.add_feature("Type", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_iptype.on = false
-local chatIpLookupFeat_ipmobile = menu.add_feature("Is Mobile", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipmobile.on = false
-local chatIpLookupFeat_ipproxy1 = menu.add_feature("Is Proxy (#1)", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipproxy1.on = false
-local chatIpLookupFeat_ipproxy2 = menu.add_feature("Is Proxy (#2)", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_ipproxy2.on = false
-local chatIpLookupFeat_iphosting = menu.add_feature("Is Hosting", "toggle", chatLookupFlags.id)
-chatIpLookupFeat_iphosting.on = false
+init_toggle_flags("Chat Messages Flags", "chatFeat", chatLookupFlags)
 
 local showUnresolvedValues = menu.add_feature('Show "N/A" values.', "toggle", settingsMenu.id)
 showUnresolvedValues.hint = 'Enable to display values marked as "N/A".'
 showUnresolvedValues.on = false
 
-local ipLookupFeat_ip = menu.add_feature("IP", "toggle", lookupFlags.id)
-ipLookupFeat_ip.on = true
-local ipLookupFeat_continent = menu.add_feature("Continent", "toggle", lookupFlags.id)
-ipLookupFeat_continent.on = true
-local ipLookupFeat_country = menu.add_feature("Country", "toggle", lookupFlags.id)
-ipLookupFeat_country.on = true
-local ipLookupFeat_region = menu.add_feature("Region", "toggle", lookupFlags.id)
-ipLookupFeat_region.on = true
-local ipLookupFeat_city = menu.add_feature("City", "toggle", lookupFlags.id)
-ipLookupFeat_city.on = true
-local ipLookupFeat_district = menu.add_feature("District", "toggle", lookupFlags.id)
-ipLookupFeat_district.on = true
-local ipLookupFeat_zip = menu.add_feature("Zip", "toggle", lookupFlags.id)
-ipLookupFeat_zip.on = true
-local ipLookupFeat_lat = menu.add_feature("Lat", "toggle", lookupFlags.id)
-ipLookupFeat_lat.on = false
-local ipLookupFeat_lon = menu.add_feature("Long", "toggle", lookupFlags.id)
-ipLookupFeat_lon.on = false
-local ipLookupFeat_timezone = menu.add_feature("Timezone", "toggle", lookupFlags.id)
-ipLookupFeat_timezone.on = true
-local ipLookupFeat_offset = menu.add_feature("Offset", "toggle", lookupFlags.id)
-ipLookupFeat_offset.on = false
-local ipLookupFeat_currency = menu.add_feature("Currency", "toggle", lookupFlags.id)
-ipLookupFeat_currency.on = false
-local ipLookupFeat_isp = menu.add_feature("ISP", "toggle", lookupFlags.id)
-ipLookupFeat_isp.on = true
-local ipLookupFeat_org = menu.add_feature("ORG", "toggle", lookupFlags.id)
-ipLookupFeat_org.on = true
-local ipLookupFeat_as = menu.add_feature("AS","toggle", lookupFlags.id)
-ipLookupFeat_as.on = true
-local ipLookupFeat_asname = menu.add_feature("AS Name","toggle", lookupFlags.id)
-ipLookupFeat_asname.on = true
-local ipLookupFeat_type = menu.add_feature("Type", "toggle", lookupFlags.id)
-ipLookupFeat_type.on = true
-local ipLookupFeat_mobile = menu.add_feature("Is Mobile", "toggle", lookupFlags.id)
-ipLookupFeat_mobile.on = true
-local ipLookupFeat_proxy1 = menu.add_feature("Is Proxy (#1)", "toggle", lookupFlags.id)
-ipLookupFeat_proxy1.on = true
-local ipLookupFeat_proxy2 = menu.add_feature("Is Proxy (#2)", "toggle", lookupFlags.id)
-ipLookupFeat_proxy2.on = true
-local ipLookupFeat_hosting = menu.add_feature("Is Hosting", "toggle", lookupFlags.id)
-ipLookupFeat_hosting.on = true
 
 
 -- === Player-Specific Features === --
@@ -347,18 +310,16 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     else
         menu.notify('Oh no...\n"proxycheck.io"\nReturned response code: "' .. response_code .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
     end
+    PROXYCHECK_jsonTable = nil
 
+    local function assign_feat_data(lookupFlag)
+        local jsonTable
 
-    local function assign_feat_data(ipLookupFeat, APIProvider, jsonTable, tableKey, optionalTableKey)
-        local function return_feat_data(APIProvider, jsonTable, tableKey)
-            local value = nil
+        local function format_feat_data(jsonKey)
+            local value
 
             if jsonTable and type(jsonTable) == "table" then
-                if APIProvider == "IPAPI" then
-                    value = jsonTable[tableKey]
-                elseif APIProvider == "PROXYCHECK" then
-                    value = jsonTable[playerIP][tableKey]
-                end
+                value = jsonTable[jsonKey]
             end
 
             if value == nil then
@@ -378,81 +339,62 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
             return value
         end
 
-        ipLookupFeat.data = return_feat_data(APIProvider, jsonTable, tableKey)
-        if optionalTableKey then
-            ipLookupFeat.data = ipLookupFeat.data .. " (" .. return_feat_data(APIProvider, jsonTable, optionalTableKey) .. ")"
-            if ipLookupFeat.data == "N/A (N/A)" then
-                ipLookupFeat.data = "N/A"
+        if lookupFlag.apiProvider == "IPAPI" then
+            if IPAPI_jsonTable and type(IPAPI_jsonTable) == "table" then
+                jsonTable = IPAPI_jsonTable
+            end
+        elseif lookupFlag.apiProvider == "PROXYCHECK" then
+            if PROXYCHECK_jsonTable and type(PROXYCHECK_jsonTable) == "table" then
+                jsonTable = PROXYCHECK_jsonTable[playerIP]
+            end
+        end
+
+        lookupFlag.lookupFeat.data = format_feat_data(lookupFlag.jsonKeys[1])
+        if #lookupFlag.jsonKeys == 2 then
+            lookupFlag.lookupFeat.data = lookupFlag.lookupFeat.data .. " (" .. format_feat_data(lookupFlag.jsonKeys[2]) .. ")"
+            if lookupFlag.lookupFeat.data == "N/A (N/A)" then
+                lookupFlag.lookupFeat.data = "N/A"
             end
         end
     end
 
-    -- Safely assign ipLookupFeat_(...).data from the JSON table APIs
-    ipLookupFeat_ip.data = playerIP
-    assign_feat_data(ipLookupFeat_continent, "IPAPI", IPAPI_jsonTable, "continent", "continentCode")
-    assign_feat_data(ipLookupFeat_country, "IPAPI", IPAPI_jsonTable, "country", "countryCode")
-    assign_feat_data(ipLookupFeat_region, "IPAPI", IPAPI_jsonTable, "regionName", "region")
-    assign_feat_data(ipLookupFeat_city, "IPAPI", IPAPI_jsonTable, "city")
-    assign_feat_data(ipLookupFeat_district, "IPAPI", IPAPI_jsonTable, "district")
-    assign_feat_data(ipLookupFeat_zip, "IPAPI", IPAPI_jsonTable, "zip")
-    assign_feat_data(ipLookupFeat_lat, "IPAPI", IPAPI_jsonTable, "lat")
-    assign_feat_data(ipLookupFeat_lon, "IPAPI", IPAPI_jsonTable, "lon")
-    assign_feat_data(ipLookupFeat_timezone, "IPAPI", IPAPI_jsonTable, "timezone")
-    assign_feat_data(ipLookupFeat_offset, "IPAPI", IPAPI_jsonTable, "offset")
-    assign_feat_data(ipLookupFeat_currency, "IPAPI", IPAPI_jsonTable, "currency")
-    assign_feat_data(ipLookupFeat_isp, "IPAPI", IPAPI_jsonTable, "isp")
-    assign_feat_data(ipLookupFeat_org, "IPAPI", IPAPI_jsonTable, "org")
-    assign_feat_data(ipLookupFeat_as, "IPAPI", IPAPI_jsonTable, "as")
-    assign_feat_data(ipLookupFeat_asname, "IPAPI", IPAPI_jsonTable, "asname")
-    assign_feat_data(ipLookupFeat_type, "PROXYCHECK", PROXYCHECK_jsonTable, "type")
-    assign_feat_data(ipLookupFeat_mobile, "IPAPI", IPAPI_jsonTable, "mobile")
-    assign_feat_data(ipLookupFeat_hosting, "IPAPI", IPAPI_jsonTable, "hosting")
-    assign_feat_data(ipLookupFeat_proxy1, "IPAPI", IPAPI_jsonTable, "proxy")
-    assign_feat_data(ipLookupFeat_proxy2, "PROXYCHECK", PROXYCHECK_jsonTable, "proxy")
+    local playerName = player.get_player_name(pid)
 
-
-    local function add_player_ip_lookup_feature(parentFeat, label, ipLookupFeat, chatipLookupFeat)
-        if not ipLookupFeat.on then
+    local function add_player_ip_lookup_feature(lookupFlag)
+        if not lookupFlag.lookupFeat.on then
             return
         end
 
-        if ipLookupFeat.data == "N/A" and not showUnresolvedValues.on then
+        if lookupFlag.lookupFeat.data == "N/A" and not showUnresolvedValues.on then
             return
         end
 
-        if chatipLookupFeat.on then
-            table.insert(listChatMessages, player.get_player_name(pid) .. " > " .. label .. ipLookupFeat.data)
+        if lookupFlag.chatFeat.on then
+            table.insert(listChatMessages, playerName .. " > " .. lookupFlag.name .. ": " .. lookupFlag.lookupFeat.data)
         end
 
-        local feat = menu.add_player_feature(label .. "#FF00C800#" .. ipLookupFeat.data .. "#DEFAULT#", "action", parentFeat.id, function(feat, pid)
-            menu.notify('Copied "' .. ipLookupFeat.data .. '" to clipboard.', SCRIPT_TITLE, 6, COLOR.GREEN)
-            utils.to_clipboard(ipLookupFeat.data)
+        local feat2 = menu.add_player_feature(lookupFlag.name .. ": " .. "#FF00C800#" .. lookupFlag.lookupFeat.data .. "#DEFAULT#", "action", feat.id, function(feat, pid)
+            menu.notify('Copied "' .. lookupFlag.lookupFeat.data .. '" to clipboard.', SCRIPT_TITLE, 6, COLOR.GREEN)
+            utils.to_clipboard(lookupFlag.lookupFeat.data)
         end)
-        feat.hint = "Copy to clipboard."
-        table.insert(ipLookupFeatList, feat.id)
+        feat2.hint = "Copy to clipboard."
+        table.insert(ipLookupFeatList, feat2.id)
     end
 
-    add_player_ip_lookup_feature(feat, "IP: ", ipLookupFeat_ip, chatIpLookupFeat_ip)
-    add_player_ip_lookup_feature(feat, "Continent: ", ipLookupFeat_continent, chatIpLookupFeat_ipcontinent)
-    add_player_ip_lookup_feature(feat, "Country: ", ipLookupFeat_country, chatIpLookupFeat_ipcountry)
-    add_player_ip_lookup_feature(feat, "Region: ", ipLookupFeat_region, chatIpLookupFeat_ipregion)
-    add_player_ip_lookup_feature(feat, "City: ", ipLookupFeat_city, chatIpLookupFeat_ipcity)
-    add_player_ip_lookup_feature(feat, "District: ", ipLookupFeat_district, chatIpLookupFeat_ipdistrict)
-    add_player_ip_lookup_feature(feat, "Zip: ", ipLookupFeat_zip, chatIpLookupFeat_ipzip)
-    add_player_ip_lookup_feature(feat, "Lat: ", ipLookupFeat_lat, chatIpLookupFeat_iplat)
-    add_player_ip_lookup_feature(feat, "Lon: ", ipLookupFeat_lon, chatIpLookupFeat_iplon)
-    add_player_ip_lookup_feature(feat, "Timezone: ", ipLookupFeat_timezone, chatIpLookupFeat_iptimezone)
-    add_player_ip_lookup_feature(feat, "Offset: ", ipLookupFeat_offset, chatIpLookupFeat_ipoffset)
-    add_player_ip_lookup_feature(feat, "Currency: ", ipLookupFeat_currency, chatIpLookupFeat_ipcurrency)
-    add_player_ip_lookup_feature(feat, "ISP: ", ipLookupFeat_isp, chatIpLookupFeat_ipisp)
-    add_player_ip_lookup_feature(feat, "ORG: ", ipLookupFeat_org, chatIpLookupFeat_iporg)
-    add_player_ip_lookup_feature(feat, "AS: ", ipLookupFeat_as, chatIpLookupFeat_ipas)
-    add_player_ip_lookup_feature(feat, "AS Name: ", ipLookupFeat_asname, chatIpLookupFeat_ipasname)
-    add_player_ip_lookup_feature(feat, "Type: ", ipLookupFeat_type, chatIpLookupFeat_iptype)
-    add_player_ip_lookup_feature(feat, "Is Mobile: ", ipLookupFeat_mobile, chatIpLookupFeat_ipmobile)
-    add_player_ip_lookup_feature(feat, "Is Proxy (#1): ", ipLookupFeat_proxy1, chatIpLookupFeat_ipproxy1)
-    add_player_ip_lookup_feature(feat, "Is Proxy (#2): ", ipLookupFeat_proxy2, chatIpLookupFeat_ipproxy2)
-    add_player_ip_lookup_feature(feat, "Is Hosting: ", ipLookupFeat_hosting, chatIpLookupFeat_iphosting)
+    -- Safely assign data from the JSON table APIs
+    for i = 1, #ipLookupFlagsTable do
+        local lookupFlag = ipLookupFlagsTable[i]
+
+        if lookupFlag.apiProvider == nil then
+            if lookupFlag.name == "IP" then
+                lookupFlag.lookupFeat.data = playerIP
+            end
+        else
+            assign_feat_data(lookupFlag)
+        end
+
+        add_player_ip_lookup_feature(lookupFlag)
+    end
 end)
 
 local stopSignal = false
