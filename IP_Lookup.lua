@@ -195,7 +195,7 @@ local ipLookupFlagsTable = {
 }
 
 
-local function init_toggle_flags(flagsTypeString, featName, parent)
+local function init_toggle_flags(parent, featKey, defaultValueFeatKey)
     local function create_toggle_feature(name, defaultValue)
         local feat = menu.add_feature(name, "toggle", parent.id)
         feat.on = defaultValue
@@ -205,11 +205,7 @@ local function init_toggle_flags(flagsTypeString, featName, parent)
     for i = 1, #ipLookupFlagsTable do
         local lookupFlag = ipLookupFlagsTable[i]
 
-        if flagsTypeString == "IP Lookup Flags" then
-            lookupFlag[featName] = create_toggle_feature(lookupFlag.name, lookupFlag.onMenu)
-        elseif flagsTypeString == "Chat Messages Flags" then
-            lookupFlag[featName] = create_toggle_feature(lookupFlag.name, lookupFlag.onChat)
-        end
+        lookupFlag[featKey] = create_toggle_feature(lookupFlag.name, lookupFlag[defaultValueFeatKey])
     end
 end
 
@@ -230,12 +226,12 @@ settingsMenu.hint = "Options for the script."
 local lookupFlags = menu.add_feature("IP Lookup Flags", "parent", settingsMenu.id)
 lookupFlags.hint = "Choose the flags to display in the IP Lookup."
 
-init_toggle_flags("IP Lookup Flags", "lookupFeat", lookupFlags)
+init_toggle_flags(lookupFlags, "lookupFeat", "onMenu")
 
 local chatLookupFlags = menu.add_feature("Chat Messages Flags", "parent", settingsMenu.id)
 lookupFlags.hint = "Choose the flags to display in the IP Lookup Chat Messages."
 
-init_toggle_flags("Chat Messages Flags", "chatFeat", chatLookupFlags)
+init_toggle_flags(chatLookupFlags, "chatFeat", "onChat")
 
 local showUnresolvedValues = menu.add_feature('Show "N/A" values.', "toggle", settingsMenu.id)
 showUnresolvedValues.hint = 'Enable to display values marked as "N/A".'
@@ -310,7 +306,6 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     else
         menu.notify('Oh no...\n"proxycheck.io"\nReturned response code: "' .. response_code .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
     end
-    PROXYCHECK_jsonTable = nil
 
     local function assign_feat_data(lookupFlag)
         local jsonTable
