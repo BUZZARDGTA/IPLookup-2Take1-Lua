@@ -49,6 +49,29 @@ local scriptExitEventListener
 local sendChatMessageThread
 local ipLookupFeatList = {}
 local listChatMessages = {}
+local ipLookupFlagsTable = {
+    { name = "IP", apiProvider = nil, onMenu = true, onChat = true, lookupFeat = nil, chatFeat = nil, jsonKeys = nil },
+    { name = "Continent", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "continent", "continentCode" } },
+    { name = "Country", apiProvider = "IPAPI", onMenu = true, onChat = true, lookupFeat = nil, chatFeat = nil, jsonKeys = { "country", "countryCode" } },
+    { name = "Region", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "regionName", "region" } },
+    { name = "City", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "city" } },
+    { name = "District", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "district" } },
+    { name = "Zip", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "zip" } },
+    { name = "Lat", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "lat" } },
+    { name = "Long", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "lon" } },
+    { name = "Timezone", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "timezone" } },
+    { name = "Offset", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "offset" } },
+    { name = "Currency", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "currency" } },
+    { name = "ISP", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "isp" } },
+    { name = "ORG", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "org" } },
+    { name = "AS", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "as" } },
+    { name = "AS Name", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "asname" } },
+    { name = "Type", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "type" } },
+    { name = "Is Mobile", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "mobile" } },
+    { name = "Is Proxy (#1)", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "hosting" } },
+    { name = "Is Proxy (#2)", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } },
+    { name = "Is Hosting", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } }
+}
 ---- Global variables END
 
 ---- Global functions START
@@ -170,31 +193,6 @@ if #missingPermissions > 0 then
 end
 
 
-local ipLookupFlagsTable = {
-    { name = "IP", apiProvider = nil, onMenu = true, onChat = true, lookupFeat = nil, chatFeat = nil, jsonKeys = nil },
-    { name = "Continent", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "continent", "continentCode" } },
-    { name = "Country", apiProvider = "IPAPI", onMenu = true, onChat = true, lookupFeat = nil, chatFeat = nil, jsonKeys = { "country", "countryCode" } },
-    { name = "Region", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "regionName", "region" } },
-    { name = "City", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "city" } },
-    { name = "District", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "district" } },
-    { name = "Zip", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "zip" } },
-    { name = "Lat", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "lat" } },
-    { name = "Long", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "lon" } },
-    { name = "Timezone", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "timezone" } },
-    { name = "Offset", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "offset" } },
-    { name = "Currency", apiProvider = "IPAPI", onMenu = false, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "currency" } },
-    { name = "ISP", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "isp" } },
-    { name = "ORG", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "org" } },
-    { name = "AS", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "as" } },
-    { name = "AS Name", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "asname" } },
-    { name = "Type", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "type" } },
-    { name = "Is Mobile", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "mobile" } },
-    { name = "Is Proxy (#1)", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "hosting" } },
-    { name = "Is Proxy (#2)", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } },
-    { name = "Is Hosting", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } }
-}
-
-
 local function init_toggle_flags(parent, featKey, defaultValueFeatKey)
     local function create_toggle_feature(name, defaultValue)
         local feat = menu.add_feature(name, "toggle", parent.id)
@@ -236,7 +234,6 @@ init_toggle_flags(chatLookupFlags, "chatFeat", "onChat")
 local showUnresolvedValues = menu.add_feature('Show "N/A" values.', "toggle", settingsMenu.id)
 showUnresolvedValues.hint = 'Enable to display values marked as "N/A".'
 showUnresolvedValues.on = false
-
 
 
 -- === Player-Specific Features === --
