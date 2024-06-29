@@ -39,13 +39,14 @@ local TRUSTED_FLAGS <const> = {
         name = "Trusted Memory",
     },
 }
-local REQUIERED_TRUSTED_FLAGS_BITVALUES <const> = {
+local REQUIRED_TRUSTED_FLAGS_BITVALUES <const> = {
     TRUSTED_FLAGS.LUA_TRUST_HTTP.bitValue
 }
 ---- Global constants 1/2 END
 
 ---- Global variables START
 local ipLookupFeatList = {}
+local listChatMessages = {}
 ---- Global variables END
 
 ---- Global functions START
@@ -131,14 +132,14 @@ local missingPermissions = {}
 for _, flagName in ipairs(SORTED_TRUSTED_FLAGS) do
     local flag = TRUSTED_FLAGS[flagName]
 
-    local isTrustFlagRequiered = value_exists_in_list(REQUIERED_TRUSTED_FLAGS_BITVALUES, flag.bitValue)
+    local isTrustFlagRequired = value_exists_in_list(REQUIRED_TRUSTED_FLAGS_BITVALUES, flag.bitValue)
 
     if menu.is_trusted_mode_enabled(flag.bitValue) then
-        if not isTrustFlagRequiered then
+        if not isTrustFlagRequired then
             table.insert(unnecessaryPermissions, flag.name)
         end
     else
-        if isTrustFlagRequiered then
+        if isTrustFlagRequired then
             table.insert(missingPermissions, flag.name)
         end
     end
@@ -176,55 +177,55 @@ menu.add_feature("       " .. string.rep(" -", 23), "action", myRootMenu.id)
 local settingsMenu = menu.add_feature("Settings", "parent", myRootMenu.id)
 settingsMenu.hint = "Options for the script."
 
-local lookupFlags = menu.add_feature("Lookup Flags", "parent", settingsMenu.id)
+local lookupFlags = menu.add_feature("IP Lookup Flags", "parent", settingsMenu.id)
 lookupFlags.hint = "Choose the flags to display in the IP Lookup."
 
 local showUnresolvedValues = menu.add_feature('Show "N/A" values.', "toggle", settingsMenu.id)
 showUnresolvedValues.hint = 'Enable to display values marked as "N/A".'
-showUnresolvedValues.on = true
+showUnresolvedValues.on = false
 
-local lookupFlagFeat_ip = menu.add_feature("IP", "toggle", lookupFlags.id)
-lookupFlagFeat_ip.on = true
-local lookupFlagFeat_continent = menu.add_feature("Continent", "toggle", lookupFlags.id)
-lookupFlagFeat_continent.on = true
-local lookupFlagFeat_country = menu.add_feature("Country", "toggle", lookupFlags.id)
-lookupFlagFeat_country.on = true
-local lookupFlagFeat_region = menu.add_feature("Region", "toggle", lookupFlags.id)
-lookupFlagFeat_region.on = true
-local lookupFlagFeat_city = menu.add_feature("City", "toggle", lookupFlags.id)
-lookupFlagFeat_city.on = true
-local lookupFlagFeat_district = menu.add_feature("District", "toggle", lookupFlags.id)
-lookupFlagFeat_district.on = true
-local lookupFlagFeat_zip = menu.add_feature("Zip", "toggle", lookupFlags.id)
-lookupFlagFeat_zip.on = true
-local lookupFlagFeat_lat = menu.add_feature("Lat", "toggle", lookupFlags.id)
-lookupFlagFeat_lat.on = false
-local lookupFlagFeat_lon = menu.add_feature("Long", "toggle", lookupFlags.id)
-lookupFlagFeat_lon.on = false
-local lookupFlagFeat_timezone = menu.add_feature("Timezone", "toggle", lookupFlags.id)
-lookupFlagFeat_timezone.on = true
-local lookupFlagFeat_offset = menu.add_feature("Offset", "toggle", lookupFlags.id)
-lookupFlagFeat_offset.on = false
-local lookupFlagFeat_currency = menu.add_feature("Currency", "toggle", lookupFlags.id)
-lookupFlagFeat_currency.on = false
-local lookupFlagFeat_isp = menu.add_feature("ISP", "toggle", lookupFlags.id)
-lookupFlagFeat_isp.on = true
-local lookupFlagFeat_org = menu.add_feature("ORG", "toggle", lookupFlags.id)
-lookupFlagFeat_org.on = true
-local lookupFlagFeat_as = menu.add_feature("AS","toggle", lookupFlags.id)
-lookupFlagFeat_as.on = true
-local lookupFlagFeat_asname = menu.add_feature("AS Name","toggle", lookupFlags.id)
-lookupFlagFeat_asname.on = true
-local lookupFlagFeat_type = menu.add_feature("Type", "toggle", lookupFlags.id)
-lookupFlagFeat_type.on = true
-local lookupFlagFeat_mobile = menu.add_feature("Is Mobile", "toggle", lookupFlags.id)
-lookupFlagFeat_mobile.on = true
-local lookupFlagFeat_proxy1 = menu.add_feature("Is Proxy (#1)", "toggle", lookupFlags.id)
-lookupFlagFeat_proxy1.on = true
-local lookupFlagFeat_proxy2 = menu.add_feature("Is Proxy (#2)", "toggle", lookupFlags.id)
-lookupFlagFeat_proxy2.on = true
-local lookupFlagFeat_hosting = menu.add_feature("Is Hosting", "toggle", lookupFlags.id)
-lookupFlagFeat_hosting.on = true
+local ipLookupFeat_ip = menu.add_feature("IP", "toggle", lookupFlags.id)
+ipLookupFeat_ip.on = true
+local ipLookupFeat_continent = menu.add_feature("Continent", "toggle", lookupFlags.id)
+ipLookupFeat_continent.on = true
+local ipLookupFeat_country = menu.add_feature("Country", "toggle", lookupFlags.id)
+ipLookupFeat_country.on = true
+local ipLookupFeat_region = menu.add_feature("Region", "toggle", lookupFlags.id)
+ipLookupFeat_region.on = true
+local ipLookupFeat_city = menu.add_feature("City", "toggle", lookupFlags.id)
+ipLookupFeat_city.on = true
+local ipLookupFeat_district = menu.add_feature("District", "toggle", lookupFlags.id)
+ipLookupFeat_district.on = true
+local ipLookupFeat_zip = menu.add_feature("Zip", "toggle", lookupFlags.id)
+ipLookupFeat_zip.on = true
+local ipLookupFeat_lat = menu.add_feature("Lat", "toggle", lookupFlags.id)
+ipLookupFeat_lat.on = false
+local ipLookupFeat_lon = menu.add_feature("Long", "toggle", lookupFlags.id)
+ipLookupFeat_lon.on = false
+local ipLookupFeat_timezone = menu.add_feature("Timezone", "toggle", lookupFlags.id)
+ipLookupFeat_timezone.on = true
+local ipLookupFeat_offset = menu.add_feature("Offset", "toggle", lookupFlags.id)
+ipLookupFeat_offset.on = false
+local ipLookupFeat_currency = menu.add_feature("Currency", "toggle", lookupFlags.id)
+ipLookupFeat_currency.on = false
+local ipLookupFeat_isp = menu.add_feature("ISP", "toggle", lookupFlags.id)
+ipLookupFeat_isp.on = true
+local ipLookupFeat_org = menu.add_feature("ORG", "toggle", lookupFlags.id)
+ipLookupFeat_org.on = true
+local ipLookupFeat_as = menu.add_feature("AS","toggle", lookupFlags.id)
+ipLookupFeat_as.on = true
+local ipLookupFeat_asname = menu.add_feature("AS Name","toggle", lookupFlags.id)
+ipLookupFeat_asname.on = true
+local ipLookupFeat_type = menu.add_feature("Type", "toggle", lookupFlags.id)
+ipLookupFeat_type.on = true
+local ipLookupFeat_mobile = menu.add_feature("Is Mobile", "toggle", lookupFlags.id)
+ipLookupFeat_mobile.on = true
+local ipLookupFeat_proxy1 = menu.add_feature("Is Proxy (#1)", "toggle", lookupFlags.id)
+ipLookupFeat_proxy1.on = true
+local ipLookupFeat_proxy2 = menu.add_feature("Is Proxy (#2)", "toggle", lookupFlags.id)
+ipLookupFeat_proxy2.on = true
+local ipLookupFeat_hosting = menu.add_feature("Is Hosting", "toggle", lookupFlags.id)
+ipLookupFeat_hosting.on = true
 
 
 -- === Player-Specific Features === --
@@ -241,17 +242,32 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
         end
 
         ipLookupFeatList = {}
+        listChatMessages = {}
+    end
+
+    if
+        not network.is_session_started()
+        and pid == player.player_id()
+    then
+        menu.notify("You must be in an Online Session to use this script.", SCRIPT_TITLE, 6, COLOR.ORANGE)
+        feat.parent:toggle()
+        feat:select()
+        return
     end
 
     if not player.is_player_valid(pid) then
         menu.notify("Oh no... Player is invalid. :(", SCRIPT_TITLE, 6, COLOR.ORANGE)
+        feat.parent:toggle()
+        feat:select()
         return
     end
 
     local playerIP = dec_to_ipv4(player.get_player_ip(pid))
 
-    if playerIP == "255.255.255.255" then
+    if not playerIP or playerIP == "255.255.255.255" then
         menu.notify("Oh no... Player IP is protected. :(", SCRIPT_TITLE, 6, COLOR.ORANGE)
+        feat.parent:toggle()
+        feat:select()
         return
     end
 
@@ -261,7 +277,6 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
         IPAPI_jsonTable = json.decode(json_compress(response_body))
     else
         menu.notify('Oh no...\n"ip-api.com"\nReturned response code: "' .. response_code .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
-        return
     end
 
     local response_code <const>, response_body <const>, response_headers <const> = web.get("https://proxycheck.io/v2/" .. playerIP .. "?vpn=1&asn=1")
@@ -273,63 +288,63 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     end
 
     -- Set default Values
-    lookupFlagFeat_ip.data = playerIP
-    lookupFlagFeat_continent.data = "N/A (N/A)"
-    lookupFlagFeat_country.data = "N/A (N/A)"
-    lookupFlagFeat_region.data = "N/A (N/A)"
-    lookupFlagFeat_city.data = "N/A (N/A)"
-    lookupFlagFeat_district.data = "N/A (N/A)"
-    lookupFlagFeat_zip.data = "N/A (N/A)"
-    lookupFlagFeat_lat.data = "N/A (N/A)"
-    lookupFlagFeat_lon.data = "N/A (N/A)"
-    lookupFlagFeat_timezone.data = "N/A (N/A)"
-    lookupFlagFeat_offset.data = "N/A (N/A)"
-    lookupFlagFeat_currency.data = "N/A (N/A)"
-    lookupFlagFeat_isp.data = "N/A (N/A)"
-    lookupFlagFeat_org.data = "N/A (N/A)"
-    lookupFlagFeat_as.data = "N/A (N/A)"
-    lookupFlagFeat_asname.data = "N/A (N/A)"
-    lookupFlagFeat_type.data = "N/A (N/A)"
-    lookupFlagFeat_mobile.data = "N/A (N/A)"
-    lookupFlagFeat_proxy1.data = "N/A (N/A)"
-    lookupFlagFeat_proxy2.data = "N/A (N/A)"
-    lookupFlagFeat_hosting.data = "N/A (N/A)"
+    ipLookupFeat_ip.data = playerIP
+    ipLookupFeat_continent.data = "N/A (N/A)"
+    ipLookupFeat_country.data = "N/A (N/A)"
+    ipLookupFeat_region.data = "N/A (N/A)"
+    ipLookupFeat_city.data = "N/A (N/A)"
+    ipLookupFeat_district.data = "N/A (N/A)"
+    ipLookupFeat_zip.data = "N/A (N/A)"
+    ipLookupFeat_lat.data = "N/A (N/A)"
+    ipLookupFeat_lon.data = "N/A (N/A)"
+    ipLookupFeat_timezone.data = "N/A (N/A)"
+    ipLookupFeat_offset.data = "N/A (N/A)"
+    ipLookupFeat_currency.data = "N/A (N/A)"
+    ipLookupFeat_isp.data = "N/A (N/A)"
+    ipLookupFeat_org.data = "N/A (N/A)"
+    ipLookupFeat_as.data = "N/A (N/A)"
+    ipLookupFeat_asname.data = "N/A (N/A)"
+    ipLookupFeat_type.data = "N/A (N/A)"
+    ipLookupFeat_mobile.data = "N/A (N/A)"
+    ipLookupFeat_proxy1.data = "N/A (N/A)"
+    ipLookupFeat_proxy2.data = "N/A (N/A)"
+    ipLookupFeat_hosting.data = "N/A (N/A)"
 
     -- Safely retrieve values from IPAPI_jsonTable
     if IPAPI_jsonTable then
-        lookupFlagFeat_continent.data = tostring(IPAPI_jsonTable.continent) .. " (" .. IPAPI_jsonTable.continentCode .. ")"
-        lookupFlagFeat_country.data = tostring(IPAPI_jsonTable.country) .. " (" .. IPAPI_jsonTable.countryCode .. ")"
-        lookupFlagFeat_region.data = tostring(IPAPI_jsonTable.regionName) .. " (" .. IPAPI_jsonTable.region .. ")"
-        lookupFlagFeat_city.data = tostring(IPAPI_jsonTable.city)
-        lookupFlagFeat_district.data = tostring(IPAPI_jsonTable.district)
-        lookupFlagFeat_zip.data = tostring(IPAPI_jsonTable.zip)
-        lookupFlagFeat_lat.data = tostring(IPAPI_jsonTable.lat)
-        lookupFlagFeat_lon.data = tostring(IPAPI_jsonTable.lon)
-        lookupFlagFeat_timezone.data = tostring(IPAPI_jsonTable.timezone)
-        lookupFlagFeat_offset.data = tostring(IPAPI_jsonTable.offset)
-        lookupFlagFeat_currency.data = tostring(IPAPI_jsonTable.currency)
-        lookupFlagFeat_isp.data = tostring(IPAPI_jsonTable.isp)
-        lookupFlagFeat_org.data = tostring(IPAPI_jsonTable.org)
-        lookupFlagFeat_as.data = tostring(IPAPI_jsonTable.as)
-        lookupFlagFeat_asname.data = tostring(IPAPI_jsonTable.asname)
-        lookupFlagFeat_mobile.data = tostring(IPAPI_jsonTable.mobile)
-        lookupFlagFeat_hosting.data = tostring(IPAPI_jsonTable.hosting)
-        lookupFlagFeat_proxy1.data = tostring(IPAPI_jsonTable.proxy)
+        ipLookupFeat_continent.data = tostring(IPAPI_jsonTable.continent) .. " (" .. IPAPI_jsonTable.continentCode .. ")"
+        ipLookupFeat_country.data = tostring(IPAPI_jsonTable.country) .. " (" .. IPAPI_jsonTable.countryCode .. ")"
+        ipLookupFeat_region.data = tostring(IPAPI_jsonTable.regionName) .. " (" .. IPAPI_jsonTable.region .. ")"
+        ipLookupFeat_city.data = tostring(IPAPI_jsonTable.city)
+        ipLookupFeat_district.data = tostring(IPAPI_jsonTable.district)
+        ipLookupFeat_zip.data = tostring(IPAPI_jsonTable.zip)
+        ipLookupFeat_lat.data = tostring(IPAPI_jsonTable.lat)
+        ipLookupFeat_lon.data = tostring(IPAPI_jsonTable.lon)
+        ipLookupFeat_timezone.data = tostring(IPAPI_jsonTable.timezone)
+        ipLookupFeat_offset.data = tostring(IPAPI_jsonTable.offset)
+        ipLookupFeat_currency.data = tostring(IPAPI_jsonTable.currency)
+        ipLookupFeat_isp.data = tostring(IPAPI_jsonTable.isp)
+        ipLookupFeat_org.data = tostring(IPAPI_jsonTable.org)
+        ipLookupFeat_as.data = tostring(IPAPI_jsonTable.as)
+        ipLookupFeat_asname.data = tostring(IPAPI_jsonTable.asname)
+        ipLookupFeat_mobile.data = tostring(IPAPI_jsonTable.mobile)
+        ipLookupFeat_hosting.data = tostring(IPAPI_jsonTable.hosting)
+        ipLookupFeat_proxy1.data = tostring(IPAPI_jsonTable.proxy)
     end
 
     -- Safely retrieve values from PROXYCHECK_jsonTable
     if PROXYCHECK_jsonTable and PROXYCHECK_jsonTable[playerIP] then
-        lookupFlagFeat_type.data = tostring(PROXYCHECK_jsonTable[playerIP].type)
-        lookupFlagFeat_proxy2.data = tostring(PROXYCHECK_jsonTable[playerIP].proxy)
+        ipLookupFeat_type.data = tostring(PROXYCHECK_jsonTable[playerIP].type)
+        ipLookupFeat_proxy2.data = tostring(PROXYCHECK_jsonTable[playerIP].proxy)
     end
 
 
-    local function add_player_ip_lookup_feature(parentFeat, label, feat)
-        if not feat.on then
+    local function add_player_ip_lookup_feature(parentFeat, label, ipLookupFeat)
+        if not ipLookupFeat.on then
             return
         end
 
-        local stringValue = feat.data
+        local stringValue = ipLookupFeat.data
 
         if stringValue == nil or stringValue == "" or stringValue:lower() == "nil" then
             stringValue = "N/A"
@@ -343,7 +358,9 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
             return
         end
 
-        local feat = menu.add_player_feature(label .. stringValue, "action", parentFeat.id, function(feat, pid)
+        table.insert(listChatMessages, player.get_player_name(pid) .. " > " .. label .. stringValue)
+
+        local feat = menu.add_player_feature(label .. "#FF00C800#" .. stringValue .. "#DEFAULT#", "action", parentFeat.id, function(feat, pid)
             menu.notify('Copied "' .. stringValue .. '" to clipboard.', SCRIPT_TITLE, 6, COLOR.GREEN)
             utils.to_clipboard(stringValue)
         end)
@@ -351,26 +368,44 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
         table.insert(ipLookupFeatList, feat.id)
     end
 
-
-    add_player_ip_lookup_feature(feat, "IP: ", lookupFlagFeat_ip)
-    add_player_ip_lookup_feature(feat, "Continent: ", lookupFlagFeat_continent)
-    add_player_ip_lookup_feature(feat, "Country: ", lookupFlagFeat_country)
-    add_player_ip_lookup_feature(feat, "Region: ", lookupFlagFeat_region)
-    add_player_ip_lookup_feature(feat, "City: ", lookupFlagFeat_city)
-    add_player_ip_lookup_feature(feat, "District: ", lookupFlagFeat_district)
-    add_player_ip_lookup_feature(feat, "Zip: ", lookupFlagFeat_zip)
-    add_player_ip_lookup_feature(feat, "Lat: ", lookupFlagFeat_lat)
-    add_player_ip_lookup_feature(feat, "Lon: ", lookupFlagFeat_lon)
-    add_player_ip_lookup_feature(feat, "Timezone: ", lookupFlagFeat_timezone)
-    add_player_ip_lookup_feature(feat, "Offset: ", lookupFlagFeat_offset)
-    add_player_ip_lookup_feature(feat, "Currency: ", lookupFlagFeat_currency)
-    add_player_ip_lookup_feature(feat, "ISP: ", lookupFlagFeat_isp)
-    add_player_ip_lookup_feature(feat, "ORG: ", lookupFlagFeat_org)
-    add_player_ip_lookup_feature(feat, "AS: ", lookupFlagFeat_as)
-    add_player_ip_lookup_feature(feat, "AS Name: ", lookupFlagFeat_asname)
-    add_player_ip_lookup_feature(feat, "Type: ", lookupFlagFeat_type)
-    add_player_ip_lookup_feature(feat, "Is Mobile: ", lookupFlagFeat_mobile)
-    add_player_ip_lookup_feature(feat, "Is Proxy (#1): ", lookupFlagFeat_proxy1)
-    add_player_ip_lookup_feature(feat, "Is Proxy (#2): ", lookupFlagFeat_proxy2)
-    add_player_ip_lookup_feature(feat, "Is Hosting: ", lookupFlagFeat_hosting)
+    add_player_ip_lookup_feature(feat, "IP: ", ipLookupFeat_ip)
+    add_player_ip_lookup_feature(feat, "Continent: ", ipLookupFeat_continent)
+    add_player_ip_lookup_feature(feat, "Country: ", ipLookupFeat_country)
+    add_player_ip_lookup_feature(feat, "Region: ", ipLookupFeat_region)
+    add_player_ip_lookup_feature(feat, "City: ", ipLookupFeat_city)
+    add_player_ip_lookup_feature(feat, "District: ", ipLookupFeat_district)
+    add_player_ip_lookup_feature(feat, "Zip: ", ipLookupFeat_zip)
+    add_player_ip_lookup_feature(feat, "Lat: ", ipLookupFeat_lat)
+    add_player_ip_lookup_feature(feat, "Lon: ", ipLookupFeat_lon)
+    add_player_ip_lookup_feature(feat, "Timezone: ", ipLookupFeat_timezone)
+    add_player_ip_lookup_feature(feat, "Offset: ", ipLookupFeat_offset)
+    add_player_ip_lookup_feature(feat, "Currency: ", ipLookupFeat_currency)
+    add_player_ip_lookup_feature(feat, "ISP: ", ipLookupFeat_isp)
+    add_player_ip_lookup_feature(feat, "ORG: ", ipLookupFeat_org)
+    add_player_ip_lookup_feature(feat, "AS: ", ipLookupFeat_as)
+    add_player_ip_lookup_feature(feat, "AS Name: ", ipLookupFeat_asname)
+    add_player_ip_lookup_feature(feat, "Type: ", ipLookupFeat_type)
+    add_player_ip_lookup_feature(feat, "Is Mobile: ", ipLookupFeat_mobile)
+    add_player_ip_lookup_feature(feat, "Is Proxy (#1): ", ipLookupFeat_proxy1)
+    add_player_ip_lookup_feature(feat, "Is Proxy (#2): ", ipLookupFeat_proxy2)
+    add_player_ip_lookup_feature(feat, "Is Hosting: ", ipLookupFeat_hosting)
 end)
+
+local sendChatMessageFeat = menu.add_player_feature("Send IP Lookup in Chat", "action_value_str", myPlayerRootMenu.id, function(feat, pid)
+    if #listChatMessages == 0 then
+        return
+    end
+
+    local teamOnly = feat.value == 1
+
+    for i = 1, #listChatMessages do
+        network.send_chat_message(listChatMessages[i], teamOnly)
+        system.yield(1000)
+    end
+end)
+sendChatMessageFeat:set_str_data({
+    "Everyone",
+    "Team"
+})
+
+menu.add_player_feature("       " .. string.rep(" -", 23), "action", myPlayerRootMenu.id)
