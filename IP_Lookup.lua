@@ -370,7 +370,7 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
         end
 
         if lookupFlag.chatFeat.on then
-            table.insert(listChatMessages, playerName .. " > " .. lookupFlag.name .. ": " .. lookupFlag.lookupFeat.data)
+            table.insert(listChatMessages, playerName .. " = " .. lookupFlag.name .. ": " .. lookupFlag.lookupFeat.data)
         end
 
         local feat2 = menu.add_player_feature(lookupFlag.name .. ": " .. "#FF00C800#" .. lookupFlag.lookupFeat.data .. "#DEFAULT#", "action", feat.id, function(feat, pid)
