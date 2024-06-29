@@ -186,7 +186,7 @@ settingsMenu.hint = "Options for the script."
 local lookupFlags = menu.add_feature("IP Lookup Flags", "parent", settingsMenu.id)
 lookupFlags.hint = "Choose the flags to display in the IP Lookup."
 
-local chatLookupFlags = menu.add_feature("IP Lookup Chat Messages Flags", "parent", settingsMenu.id)
+local chatLookupFlags = menu.add_feature("Chat Messages Flags", "parent", settingsMenu.id)
 lookupFlags.hint = "Choose the flags to display in the IP Lookup Chat Messages."
 
 local chatIpLookupFeat_ip = menu.add_feature("IP", "toggle", chatLookupFlags.id)
