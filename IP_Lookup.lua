@@ -389,18 +389,18 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     end
 end)
 
-local sendChatMessageFeat_stopSignal = false
+local sendChatMessage_stopSignal = false
 
 local function send_chat_message(teamOnly)
-    sendChatMessageFeat_stopSignal = false
+    sendChatMessage_stopSignal = false
 
     if #listChatMessages == 0 then
         return
     end
 
     for i = 1, #listChatMessages do
-        if sendChatMessageFeat_stopSignal then
-            sendChatMessageFeat_stopSignal = false
+        if sendChatMessage_stopSignal then
+            sendChatMessage_stopSignal = false
             return
         end
 
@@ -423,7 +423,7 @@ local sendChatMessageFeat = menu.add_player_feature("Send IP Lookup in Chat", "a
     elseif feat.value == 1 then
         create_thread_if_finished(true) -- (teamOnly)
     elseif feat.value == 2 then
-        sendChatMessageFeat_stopSignal = true
+        sendChatMessage_stopSignal = true
     elseif feat.value == 3 then
         chatLookupFlags:toggle()
         chatLookupFlags:select()
