@@ -117,6 +117,14 @@ local function value_exists_in_list(list, value)
     return false
 end
 
+local function is_thread_runnning(threadId)
+    if threadId and not menu.has_thread_finished(threadId) then
+        return true
+    end
+
+    return false
+end
+
 local function handle_script_exit(params)
     params = params or {}
 
@@ -124,7 +132,7 @@ local function handle_script_exit(params)
         scriptExitEventListener = nil
     end
 
-    if sendChatMessageThread and not menu.has_thread_finished(sendChatMessageThread) then
+    if is_thread_runnning(sendChatMessageThread) then
         menu.delete_thread(sendChatMessageThread)
     end
 
@@ -389,28 +397,19 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     end
 end)
 
-local sendChatMessage_stopSignal = false
-
 local function send_chat_message(teamOnly)
-    sendChatMessage_stopSignal = false
-
     if #listChatMessages == 0 then
         return
     end
 
     for i = 1, #listChatMessages do
-        if sendChatMessage_stopSignal then
-            sendChatMessage_stopSignal = false
-            return
-        end
-
         network.send_chat_message(listChatMessages[i], teamOnly)
         system.yield(1000)
     end
 end
 
 local function create_thread_if_finished(teamOnly)
-    if sendChatMessageThread and not menu.has_thread_finished(sendChatMessageThread) then
+    if is_thread_runnning(sendChatMessageThread) then
         return
     end
 
@@ -423,7 +422,9 @@ local sendChatMessageFeat = menu.add_player_feature("Send IP Lookup in Chat", "a
     elseif feat.value == 1 then
         create_thread_if_finished(true) -- (teamOnly)
     elseif feat.value == 2 then
-        sendChatMessage_stopSignal = true
+        if is_thread_runnning(sendChatMessageThread) then
+            menu.delete_thread(sendChatMessageThread)
+        end
     elseif feat.value == 3 then
         chatLookupFlags:toggle()
         chatLookupFlags:select()
