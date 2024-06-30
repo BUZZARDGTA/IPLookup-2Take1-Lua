@@ -49,6 +49,8 @@ local scriptExitEventListener
 local sendChatMessageThread
 local ipLookupFeatList = {}
 local listChatMessages = {}
+local cached_IPAPI_jsonsTable = {}
+local cached_PROXYCHECK_jsonsTable = {}
 local ipLookupFlagsTable = {
     { name = "IP", apiProvider = nil, onMenu = true, onChat = true, lookupFeat = nil, chatFeat = nil, jsonKeys = nil },
     { name = "Continent", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "continent", "continentCode" } },
@@ -246,8 +248,6 @@ showUnresolvedValues.on = false
 
 -- === Player-Specific Features === --
 local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, function(feat, pid)
-    local IPAPI_jsonTable
-    local PROXYCHECK_jsonTable
     listChatMessages = {}
 
     if ipLookupFeatList then
@@ -281,7 +281,7 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
         return
     end
 
-    local playerIP = dec_to_ipv4(player.get_player_ip(pid))
+    local playerIP <const> = dec_to_ipv4(player.get_player_ip(pid))
 
     if not playerIP or playerIP == "255.255.255.255" then
         menu.notify("Oh no... Player IP is protected. :(", SCRIPT_TITLE, 6, COLOR.ORANGE)
@@ -290,27 +290,34 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
         return
     end
 
-    local response_code <const>, response_body <const>, response_headers <const> = web.get("http://ip-api.com/json/" .. playerIP .. "?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,mobile,proxy,hosting,query")
-
-    if response_code == 200 then
-        IPAPI_jsonTable = json.decode(json_compress(response_body))
-        if IPAPI_jsonTable and type(IPAPI_jsonTable) == "table" and IPAPI_jsonTable.status ~= "success" then
-            menu.notify('Oh no...\n"ip-api.com"\nReturned response status message: "' .. IPAPI_jsonTable.status .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
+    local function fetch_and_cache_json(cached_jsonTable, success_status, api_url)
+        -- Check cache first
+        if cached_jsonTable[playerIP] then
+            return cached_jsonTable[playerIP]
         end
-    else
-        menu.notify('Oh no...\n"ip-api.com"\nReturned response code: "' .. response_code .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
+
+        -- Fetch json from the API
+        local response_code, response_body, response_headers = web.get(api_url)
+        if response_code == 200 then
+            local json_table <const> = json.decode(json_compress(response_body))
+            if json_table and type(json_table) == "table" then
+                if json_table.status == success_status then
+                    cached_jsonTable[playerIP] = json_table
+                else
+                    menu.notify('Oh no...\n"' .. api_url .. '"\nReturned response status message: "' .. json_table.status .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
+                end
+
+                return json_table
+            end
+        else
+            menu.notify('Oh no...\n"' .. api_url .. '"\nReturned response code: "' .. response_code .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
+        end
+
+        return {}
     end
 
-    local response_code <const>, response_body <const>, response_headers <const> = web.get("https://proxycheck.io/v2/" .. playerIP .. "?vpn=1&asn=1")
-
-    if response_code == 200 then
-        PROXYCHECK_jsonTable = json.decode(json_compress(response_body))
-        if PROXYCHECK_jsonTable and type(PROXYCHECK_jsonTable) == "table" and PROXYCHECK_jsonTable.status ~= "ok" then
-            menu.notify('Oh no...\n"ip-api.com"\nReturned response status message: "' .. IPAPI_jsonTable.status .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
-        end
-    else
-        menu.notify('Oh no...\n"proxycheck.io"\nReturned response code: "' .. response_code .. '" :(', SCRIPT_TITLE, 6, COLOR.ORANGE)
-    end
+    local IPAPI_jsonTable <const> = fetch_and_cache_json(cached_IPAPI_jsonsTable, "success", "http://ip-api.com/json/" .. playerIP .. "?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,mobile,proxy,hosting,query")
+    local PROXYCHECK_jsonTable <const> = fetch_and_cache_json(cached_PROXYCHECK_jsonsTable, "ok", "https://proxycheck.io/v2/" .. playerIP .. "?vpn=1&asn=1")
 
     local function assign_feat_data(lookupFlag)
         local jsonTable
@@ -358,7 +365,8 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
         end
     end
 
-    local playerName = player.get_player_name(pid)
+    local playerName <const> = player.get_player_name(pid)
+    local playerScid <const> = player.get_player_scid(pid)
 
     local function add_player_ip_lookup_feature(lookupFlag)
         if not lookupFlag.lookupFeat.on then
