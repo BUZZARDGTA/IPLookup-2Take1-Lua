@@ -70,9 +70,8 @@ local ipLookupFlagsTable = {
     { name = "AS Name", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "asname" } },
     { name = "Type", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "type" } },
     { name = "Is Mobile", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "mobile" } },
-    { name = "Is Proxy (#1)", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "hosting" } },
-    { name = "Is Proxy (#2)", apiProvider = "PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } },
-    { name = "Is Hosting", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } }
+    { name = "Is Proxy/VPN/Tor", apiProvider = "IPAPI and PROXYCHECK", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "proxy" } },
+    { name = "Is Hosting/Data Center", apiProvider = "IPAPI", onMenu = true, onChat = false, lookupFeat = nil, chatFeat = nil, jsonKeys = { "hosting" } }
 }
 ---- Global variables END
 
@@ -320,9 +319,7 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
     local PROXYCHECK_jsonTable <const> = fetch_and_cache_json(cached_PROXYCHECK_jsonsTable, "ok", "https://proxycheck.io/v2/" .. playerIP .. "?vpn=1&asn=1")
 
     local function assign_feat_data(lookupFlag)
-        local jsonTable
-
-        local function format_feat_data(jsonKey)
+        local function format_feat_data(jsonTable, jsonKey)
             local value
 
             if jsonTable and type(jsonTable) == "table" then
@@ -354,11 +351,26 @@ local myPlayerRootMenu = menu.add_player_feature(SCRIPT_TITLE, "parent", 0, func
             if PROXYCHECK_jsonTable and type(PROXYCHECK_jsonTable) == "table" then
                 jsonTable = PROXYCHECK_jsonTable[playerIP]
             end
+        elseif lookupFlag.apiProvider == "IPAPI and PROXYCHECK" then
+            if (
+                IPAPI_jsonTable and type(IPAPI_jsonTable) == "table"
+            ) and (
+                PROXYCHECK_jsonTable and type(PROXYCHECK_jsonTable) == "table"
+            ) then
+                jsonTable = IPAPI_jsonTable
+                if PROXYCHECK_jsonTable[playerIP].proxy == "yes" then
+                    jsonTable.proxy = true
+                end
+            elseif IPAPI_jsonTable then
+                jsonTable = IPAPI_jsonTable
+            elseif PROXYCHECK_jsonTable then
+                jsontable = PROXYCHECK_jsonTable[playerIP]
+            end
         end
 
-        lookupFlag.lookupFeat.data = format_feat_data(lookupFlag.jsonKeys[1])
+        lookupFlag.lookupFeat.data = format_feat_data(jsonTable, lookupFlag.jsonKeys[1])
         if #lookupFlag.jsonKeys == 2 then
-            lookupFlag.lookupFeat.data = lookupFlag.lookupFeat.data .. " (" .. format_feat_data(lookupFlag.jsonKeys[2]) .. ")"
+            lookupFlag.lookupFeat.data = lookupFlag.lookupFeat.data .. " (" .. format_feat_data(jsonTable, lookupFlag.jsonKeys[2]) .. ")"
             if lookupFlag.lookupFeat.data == "N/A (N/A)" then
                 lookupFlag.lookupFeat.data = "N/A"
             end
