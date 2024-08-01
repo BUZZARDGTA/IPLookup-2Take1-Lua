@@ -71,11 +71,7 @@ local function dec_to_ipv4(ip)
 end
 
 local function pluralize(word, count)
-    if count > 1 then
-        return word .. "s"
-    else
-        return word
-    end
+    return word .. (count > 1 and "s" or "")
 end
 
 local function ends_with_newline(str)
@@ -144,7 +140,7 @@ local function get_collection_custom_value(collection, inputKey, inputValue, out
     end
 end
 
-local function is_thread_runnning(threadId)
+local function is_thread_running(threadId)
     if threadId and not menu.has_thread_finished(threadId) then
         return true
     end
@@ -179,7 +175,7 @@ local function handle_script_exit(params)
 
     scriptExitEventListener = remove_event_listener("exit", scriptExitEventListener)
 
-    if is_thread_runnning(sendChatMessageThread) then
+    if is_thread_running(sendChatMessageThread) then
         sendChatMessageThread = delete_thread(sendChatMessageThread)
     end
 
@@ -356,13 +352,14 @@ end
 ---- Global functions 2/2 END
 
 ---- Global event listeners START
-scriptExitEventListener = event.add_event_listener("exit", function(f)
+scriptExitEventListener = event.add_event_listener("exit", function()
     handle_script_exit()
 end)
 ---- Global event listeners END
 -- Globals END
 
 
+-- Permissions Startup Checking START
 local unnecessaryPermissions = {}
 local missingPermissions = {}
 
@@ -379,22 +376,16 @@ for _, flag in ipairs(TRUSTED_FLAGS) do
 end
 
 if #unnecessaryPermissions > 0 then
-    local unnecessaryPermissionsMessage = "You do not require the following " .. pluralize("permission", #unnecessaryPermissions) .. ":\n"
-    for _, permission in ipairs(unnecessaryPermissions) do
-        unnecessaryPermissionsMessage = unnecessaryPermissionsMessage .. permission .. "\n"
-    end
-    menu.notify(unnecessaryPermissionsMessage, SCRIPT_NAME, 6, COLOR.ORANGE)
+    menu.notify("You do not require the following " .. pluralize("permission", #unnecessaryPermissions) .. ":\n" .. table.concat(unnecessaryPermissions, "\n"),
+        SCRIPT_NAME, 6, COLOR.ORANGE)
 end
-
 if #missingPermissions > 0 then
-    local missingPermissionsMessage = "You need to enable the following " .. pluralize("permission", #missingPermissions) .. ":\n"
-    for _, permission in ipairs(missingPermissions) do
-        missingPermissionsMessage = missingPermissionsMessage .. permission .. "\n"
-    end
-    menu.notify(missingPermissionsMessage, SCRIPT_NAME, 6, COLOR.RED)
-
+    menu.notify(
+        "You need to enable the following " .. pluralize("permission", #missingPermissions) .. ":\n" .. table.concat(missingPermissions, "\n"),
+        SCRIPT_NAME, 6, COLOR.RED)
     handle_script_exit()
 end
+-- Permissions Startup Checking END
 
 
 -- === Main Menu Features === --
@@ -711,7 +702,7 @@ local function send_chat_message(teamOnly)
 end
 
 local function create_thread_if_finished(teamOnly)
-    if is_thread_runnning(sendChatMessageThread) then
+    if is_thread_running(sendChatMessageThread) then
         return
     end
 
@@ -724,7 +715,7 @@ local sendChatMessageFeat = menu.add_player_feature("Send IP Lookup in Chat", "a
     elseif feat.value == 1 then
         create_thread_if_finished(true) -- (teamOnly)
     elseif feat.value == 2 then
-        if is_thread_runnning(sendChatMessageThread) then
+        if is_thread_running(sendChatMessageThread) then
             menu.delete_thread(sendChatMessageThread)
         end
     elseif feat.value == 3 then
